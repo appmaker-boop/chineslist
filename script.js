@@ -1,5 +1,3 @@
-emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
-
 const openModalBtn = document.getElementById('openModalBtn');
 const adminModalBtn = document.getElementById('adminModalBtn');
 const modalOverlay = document.getElementById('modalOverlay');
@@ -113,29 +111,18 @@ levelForm.addEventListener('submit', (e) => {
         renderLevels();
         alert("Level successfully added to the list!");
     } else {
-        const emailParams = {
-            to_email: "zubykyurko@gmail.com",
-            level_name: newLevel.name,
-            duration: newLevel.duration,
-            creator: newLevel.creator,
-            verifier: newLevel.verifier,
-            youtube: newLevel.youtube,
-            category: currentCategory
-        };
+        const email = "zubykyurko@gmail.com";
+        const subject = encodeURIComponent("New level request!");
+        const body = encodeURIComponent(
+            `Level Name: ${newLevel.name}\n` +
+            `Duration: ${newLevel.duration}\n` +
+            `Creator: ${newLevel.creator}\n` +
+            `Verifier: ${newLevel.verifier}\n` +
+            `YouTube Link: ${newLevel.youtube}\n` +
+            `Category: ${currentCategory}`
+        );
 
-        submitFormBtn.textContent = "Sending...";
-        
-        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", emailParams)
-            .then(() => {
-                alert("Level request sent successfully to zubykyurko@gmail.com!");
-                modalOverlay.classList.remove('active');
-                levelForm.reset();
-                submitFormBtn.textContent = "Submit Request";
-            }, (error) => {
-                alert("Failed to send request. Check EmailJS configuration.");
-                console.error(error);
-                submitFormBtn.textContent = "Submit Request";
-            });
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 });
 
