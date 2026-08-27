@@ -6,7 +6,6 @@
     <title>ChinesList - GD Level List</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
     <div class="stars-container"></div>
@@ -41,6 +40,11 @@
                 <button class="close-btn" id="closeModalBtn">&times;</button>
             </div>
             <form id="levelForm" class="level-form">
+                <div class="input-group" id="positionGroup" style="display: none;">
+                    <label>Placement Position (e.g., 1 for Top 1)</label>
+                    <input type="number" id="levelPosition" min="1" placeholder="1">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
                 <div class="input-group">
                     <label>Level Name</label>
                     <input type="text" id="levelName" required placeholder="e.g., Slaughterhouse">
