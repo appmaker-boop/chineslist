@@ -7,6 +7,7 @@ const modalTitle = document.getElementById('modalTitle');
 const submitFormBtn = document.getElementById('submitFormBtn');
 const levelsContainer = document.getElementById('levelsContainer');
 const catButtons = document.querySelectorAll('.cat-btn');
+const positionGroup = document.getElementById('positionGroup');
 
 let currentCategory = 'main';
 let isAdminMode = false;
@@ -19,6 +20,7 @@ openModalBtn.addEventListener('click', () => {
     isAdminMode = false;
     modalTitle.textContent = "Add Level Request";
     submitFormBtn.textContent = "Submit Request";
+    positionGroup.style.display = 'none';
     modalOverlay.classList.add('active');
 });
 
@@ -26,6 +28,7 @@ adminModalBtn.addEventListener('click', () => {
     isAdminMode = true;
     modalTitle.textContent = "Admin: Directly Add Level";
     submitFormBtn.textContent = "Add Level to List";
+    positionGroup.style.display = 'flex';
     modalOverlay.classList.add('active');
 });
 
@@ -61,6 +64,17 @@ document.querySelectorAll('.apply-field-btn').forEach(btn => {
     });
 });
 
+// Extract YouTube Video ID to get thumbnail
+function getYouTubeThumbnail(url) {
+    let videoId = "";
+    if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0];
+    } else if (url.includes("watch?v=")) {
+        videoId = url.split("watch?v=")[1]?.split("&")[0];
+    }
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "https://via.placeholder.com/90x50?text=No+Thumb";
+}
+
 function getStoredLevels() {
     return JSON.parse(localStorage.getItem('chines_levels')) || { main: [], extended: [], legacy: [] };
 }
@@ -77,12 +91,16 @@ function renderLevels() {
     }
 
     categoryLevels.forEach((lvl, index) => {
+        const thumbUrl = getYouTubeThumbnail(lvl.youtube);
         const card = document.createElement('div');
         card.className = 'level-card';
         card.innerHTML = `
-            <div class="level-info">
-                <h3>#${index + 1} - ${escapeHtml(lvl.name)}</h3>
-                <p>Creator: <strong>${escapeHtml(lvl.creator)}</strong> | Verifier: <strong>${escapeHtml(lvl.verifier)}</strong> | Duration: ${escapeHtml(lvl.duration)}</p>
+            <div class="level-left">
+                <img src="${thumbUrl}" alt="Thumbnail" class="level-thumb">
+                <div class="level-info">
+                    <h3>#${index + 1} - ${escapeHtml(lvl.name)}</h3>
+                    <p>Creator: <strong>${escapeHtml(lvl.creator)}</strong> | Verifier: <strong>${escapeHtml(lvl.verifier)}</strong> | Duration: ${escapeHtml(lvl.duration)}</p>
+                </div>
             </div>
             <a href="${escapeHtml(lvl.youtube)}" target="_blank" class="yt-link">Watch Proof</a>
         `;
@@ -103,13 +121,28 @@ levelForm.addEventListener('submit', (e) => {
 
     if (isAdminMode) {
         const data = getStoredLevels();
-        data[currentCategory].push(newLevel);
+        let targetPos = parseInt(document.getElementById('levelPosition').value);
+
+        // Handle shifting positions
+        if (!targetPos || targetPos < 1) {
+            targetPos = data[currentCategory].length + 1;
+        }
+        
+        // Convert to 0-based index
+        let index = targetPos - 1;
+        if (index > data[currentCategory].length) {
+            index = data[currentCategory].length;
+        }
+
+        // Insert at target position, shifting existing items down automatically
+        data[currentCategory].splice(index, 0, newLevel);
+        
         localStorage.setItem('chines_levels', JSON.stringify(data));
         
         modalOverlay.classList.remove('active');
         levelForm.reset();
         renderLevels();
-        alert("Level successfully added to the list!");
+        alert(`Level successfully added to Top ${targetPos}!`);
     } else {
         const email = "zubykyurko@gmail.com";
         const subject = encodeURIComponent("New level request!");
