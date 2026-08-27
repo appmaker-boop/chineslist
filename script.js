@@ -12,6 +12,13 @@ const positionGroup = document.getElementById('positionGroup');
 let currentCategory = 'main';
 let isAdminMode = false;
 
+// Check URL for admin=yes and save it permanently on this browser
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('admin') === 'yes') {
+    localStorage.setItem('chines_admin', 'true');
+}
+
+// If saved, show the rainbow admin button
 if (localStorage.getItem('chines_admin') === 'true') {
     adminModalBtn.classList.remove('hidden');
 }
@@ -64,7 +71,6 @@ document.querySelectorAll('.apply-field-btn').forEach(btn => {
     });
 });
 
-// Extract YouTube Video ID to get thumbnail
 function getYouTubeThumbnail(url) {
     let videoId = "";
     if (url.includes("youtu.be/")) {
@@ -123,20 +129,16 @@ levelForm.addEventListener('submit', (e) => {
         const data = getStoredLevels();
         let targetPos = parseInt(document.getElementById('levelPosition').value);
 
-        // Handle shifting positions
         if (!targetPos || targetPos < 1) {
             targetPos = data[currentCategory].length + 1;
         }
         
-        // Convert to 0-based index
         let index = targetPos - 1;
         if (index > data[currentCategory].length) {
             index = data[currentCategory].length;
         }
 
-        // Insert at target position, shifting existing items down automatically
         data[currentCategory].splice(index, 0, newLevel);
-        
         localStorage.setItem('chines_levels', JSON.stringify(data));
         
         modalOverlay.classList.remove('active');
