@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChinesList - GD Level List</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <div class="stars-container"></div>
+
+    <header class="header">
+        <div class="logo-area">
+            <h1>ChinesList</h1>
+            <span class="subtitle">Geometry Dash Demon List</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn plus-btn" id="openModalBtn" title="Add Level">➕</button>
+            <button class="icon-btn rainbow-btn hidden" id="adminModalBtn" title="Admin Add Level">🌈➕</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <nav class="category-nav">
+            <button class="cat-btn active" data-category="main">Main List</button>
+            <button class="cat-btn" data-category="extended">Extended List</button>
+            <button class="cat-btn" data-category="legacy">Legacy List</button>
+        </nav>
+
+        <section class="levels-section">
+            <div id="levelsContainer" class="levels-grid"></div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Level Request</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="levelForm" class="level-form">
+                <div class="input-group">
+                    <label>Level Name</label>
+                    <input type="text" id="levelName" required placeholder="e.g., Slaughterhouse">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
+                <div class="input-group">
+                    <label>Duration</label>
+                    <input type="text" id="levelDuration" required placeholder="e.g., 1m 30s">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
+                <div class="input-group">
+                    <label>Creator (Must be logged in)</label>
+                    <input type="text" id="levelCreator" required placeholder="Your GD Username">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
+                <div class="input-group">
+                    <label>Verifier (Must be logged in)</label>
+                    <input type="text" id="levelVerifier" required placeholder="Verifier Username">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
+                <div class="input-group">
+                    <label>YouTube Link (Proof)</label>
+                    <input type="url" id="levelYT" required placeholder="https://youtube.com/watch?v=...">
+                    <button type="button" class="apply-field-btn">Apply</button>
+                </div>
+                <button type="submit" class="submit-request-btn" id="submitFormBtn">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
