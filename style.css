@@ -150,18 +150,32 @@ body {
     align-items: center;
     background: linear-gradient(135deg, rgba(139,0,0,0.8), rgba(74,0,0,0.9));
     border: 2px solid var(--yellow-accent);
-    padding: 15px 20px;
+    padding: 12px 18px;
     border-radius: 10px;
-    gap: 10px;
+    gap: 15px;
+}
+
+.level-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.level-thumb {
+    width: 90px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--yellow-accent);
 }
 
 .level-info h3 {
     color: var(--yellow-accent);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .level-info p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #f0f0f0;
 }
 
@@ -281,4 +295,4 @@ body {
     font-weight: bold;
     cursor: pointer;
     margin-top: 5px;
-  }
+}
