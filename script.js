@@ -29,7 +29,6 @@ let currentCatIndex = 0;
 let isAdminMode = false;
 let pendingDeleteGlobalIndex = null;
 
-// Handle Admin URL parameters (?admin=yes or ?admin=no)
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('admin') === 'yes') {
     localStorage.setItem('chines_admin', 'true');
@@ -67,7 +66,6 @@ modalOverlay.addEventListener('click', (e) => {
     }
 });
 
-// Delete Modal Controls
 closeDeleteModalBtn.addEventListener('click', () => {
     deleteModalOverlay.classList.remove('active');
     pendingDeleteGlobalIndex = null;
@@ -90,10 +88,8 @@ confirmDeleteBtn.addEventListener('click', () => {
         const data = getStoredLevels();
         let allLevels = [...data.main, ...data.extended, ...data.legacy];
         
-        // Remove target index
         allLevels.splice(pendingDeleteGlobalIndex, 1);
 
-        // Re-distribute tiers cleanly
         data.main = allLevels.slice(0, 14);
         data.extended = allLevels.slice(14, 50);
         data.legacy = allLevels.slice(50, 100);
@@ -181,7 +177,6 @@ function renderLevels() {
         const card = document.createElement('div');
         card.className = 'level-card';
 
-        // Build action buttons layout (shows Delete button next to Watch Proof if admin is unlocked)
         let actionsHTML = `<a href="${escapeHtml(lvl.youtube)}" target="_blank" class="yt-link">Watch Proof</a>`;
         if (isUnlockedAdmin) {
             actionsHTML = `
@@ -205,7 +200,6 @@ function renderLevels() {
         levelsContainer.appendChild(card);
     });
 
-    // Attach click listeners to all dynamically created delete buttons
     if (isUnlockedAdmin) {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -216,7 +210,7 @@ function renderLevels() {
     }
 }
 
-levelForm.addEventListener('submit', (e) => {
+levelForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const newLevel = {
@@ -254,18 +248,41 @@ levelForm.addEventListener('submit', (e) => {
         renderLevels();
         alert(`Level successfully added to position #${globalIndex + 1}!`);
     } else {
-        const email = "chineslistlevelrequestor@gmail.com";
-        const subject = encodeURIComponent("New level request!");
-        const body = encodeURIComponent(
-            `Level Name: ${newLevel.name}\n` +
-            `Duration: ${newLevel.duration}\n` +
-            `Creator: ${newLevel.creator}\n` +
-            `Verifier: ${newLevel.verifier}\n` +
-            `YouTube Link: ${newLevel.youtube}\n` +
-            `Category: ${categories[currentCatIndex]}`
-        );
+        // Automatically send email in the background to chineslistlevelrequestor@gmail.com
+        submitFormBtn.textContent = "Sending...";
+        submitFormBtn.disabled = true;
 
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        try {
+            const response = await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: "New level request!",
+                    Level_Name: newLevel.name,
+                    Duration: newLevel.duration,
+                    Creator: newLevel.creator,
+                    Verifier: newLevel.verifier,
+                    YouTube_Link: newLevel.youtube,
+                    Category: categories[currentCatIndex]
+                })
+            });
+
+            if (response.ok) {
+                alert("Level request successfully sent in the background!");
+                modalOverlay.classList.remove('active');
+                levelForm.reset();
+            } else {
+                alert("Failed to send request automatically. Please try again.");
+            }
+        } catch (error) {
+            alert("Network error. Could not send the request.");
+        } finally {
+            submitFormBtn.textContent = "Submit Request";
+            submitFormBtn.disabled = false;
+        }
     }
 });
 
@@ -274,3 +291,4 @@ function escapeHtml(text) {
 }
 
 renderLevels();
+    
