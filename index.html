@@ -22,7 +22,6 @@
     </header>
 
     <main class="main-container">
-        <!-- Category Carousel Navigation -->
         <section class="category-carousel-section">
             <div class="carousel-nav-container">
                 <button class="carousel-arrow" id="prevCatBtn" title="Previous List">&#10094;</button>
@@ -62,12 +61,12 @@
                     <button type="button" class="apply-field-btn">Apply</button>
                 </div>
                 <div class="input-group">
-                    <label>Creator (Must be logged in)</label>
+                    <label>Creator</label>
                     <input type="text" id="levelCreator" required placeholder="Your GD Username">
                     <button type="button" class="apply-field-btn">Apply</button>
                 </div>
                 <div class="input-group">
-                    <label>Verifier (Must be logged in)</label>
+                    <label>Verifier</label>
                     <input type="text" id="levelVerifier" required placeholder="Verifier Username">
                     <button type="button" class="apply-field-btn">Apply</button>
                 </div>
@@ -78,6 +77,20 @@
                 </div>
                 <button type="submit" class="submit-request-btn" id="submitFormBtn">Submit Request</button>
             </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModalOverlay">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header">
+                <h2>Confirm Deletion</h2>
+                <button class="close-btn" id="closeDeleteModalBtn">&times;</button>
+            </div>
+            <p class="delete-confirmation-text">Are you sure you want to permanently remove this level from the list? This will shift all subsequent levels up by one position.</p>
+            <div class="delete-modal-actions">
+                <button class="delete-action-btn confirm-delete" id="confirmDeleteBtn">I want to delete this level</button>
+                <button class="delete-action-btn cancel-delete" id="cancelDeleteBtn">I changed my mind</button>
+            </div>
         </div>
     </div>
 
