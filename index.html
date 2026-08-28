@@ -16,8 +16,15 @@
             <span class="subtitle">Geometry Dash Demon List</span>
         </div>
         <div class="header-actions">
-            <button class="icon-btn plus-btn" id="openModalBtn" title="Add Level">➕</button>
-            <button class="icon-btn rainbow-btn hidden" id="adminModalBtn" title="Admin Add Level">🌈➕</button>
+            <button class="icon-btn signup-top-btn" id="openSignupModalBtn" title="Sign Up">
+                <span class="signup-icon">👤</span>
+                <span class="signup-text">Sign up</span>
+            </button>
+            <div class="stacked-action-buttons">
+                <button class="icon-btn plus-btn" id="openModalBtn" title="Add Level">➕</button>
+                <button class="icon-btn rainbow-btn hidden" id="adminModalBtn" title="Admin Add Level">🌈➕</button>
+                <button class="icon-btn chat-toggle-btn" id="openChatBtn" title="Open Chat">💬</button>
+            </div>
         </div>
     </header>
 
@@ -80,6 +87,77 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="signupModalOverlay">
+        <div class="modal-content signup-modal-content">
+            <div class="modal-header">
+                <h2>Sign Up</h2>
+                <button class="close-btn" id="closeSignupModalBtn">&times;</button>
+            </div>
+            
+            <div id="signupStepOAuth" class="signup-step">
+                <div class="oauth-buttons">
+                    <button class="oauth-btn google-btn" id="googleSignupBtn">
+                        <span class="oauth-icon">G</span>
+                        <span class="oauth-text">Sign up with Google</span>
+                    </button>
+                    <button class="oauth-btn github-btn" id="githubSignupBtn">
+                        <span class="oauth-icon">🐙</span>
+                        <span class="oauth-text">Sign up with GitHub</span>
+                    </button>
+                </div>
+                <div class="recovery-links">
+                    <a href="#" id="forgotUsernameLink">Forgot Username?</a>
+                    <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+            </div>
+
+            <div id="signupStepCredentials" class="signup-step hidden">
+                <form id="signupCredentialsForm" class="level-form">
+                    <div class="input-group">
+                        <label>Choose Username</label>
+                        <input type="text" id="newUsername" required placeholder="e.g., GeometryMaster">
+                    </div>
+                    <div class="input-group">
+                        <label>Choose Password</label>
+                        <input type="password" id="newPassword" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="submit-request-btn">Complete Sign Up</button>
+                </form>
+            </div>
+
+            <div id="signupStepRecovery" class="signup-step hidden">
+                <form id="recoveryForm" class="level-form">
+                    <p class="delete-confirmation-text" id="recoveryPromptText">What's your Gmail?</p>
+                    <div class="input-group">
+                        <label>Your Registered Gmail</label>
+                        <input type="email" id="recoveryEmail" required placeholder="name@gmail.com">
+                    </div>
+                    <button type="submit" class="submit-request-btn">Done</button>
+                    <button type="button" class="cancel-delete" id="backToOAuthBtn" style="margin-top: 5px; width: 100%;">Back</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="chatModalOverlay">
+        <div class="chat-window">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <h3>ChinesList Global Chat</h3>
+                    <span id="chatUserStatus">Connected as: Guest</span>
+                </div>
+                <button class="close-btn" id="closeChatBtn">&times;</button>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message system-msg">Welcome to ChinesList Chat! Be respectful to everyone.</div>
+            </div>
+            <form class="chat-footer" id="chatForm">
+                <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" required>
+                <button type="submit" class="chat-send-btn">➤</button>
+            </form>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModalOverlay">
         <div class="modal-content delete-modal-content">
             <div class="modal-header">
@@ -96,4 +174,5 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+                </html>
+                
