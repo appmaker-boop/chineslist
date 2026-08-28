@@ -13,6 +13,11 @@ const nextCatBtn = document.getElementById('nextCatBtn');
 const categoryTitle = document.getElementById('categoryTitle');
 const categoryDescription = document.getElementById('categoryDescription');
 
+const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
 const categories = ['main', 'extended', 'legacy'];
 const categoryMeta = {
     main: { name: 'Main List', desc: 'The hardest demons in Geometry Dash (Top 1 - 14).' },
@@ -22,10 +27,14 @@ const categoryMeta = {
 
 let currentCatIndex = 0;
 let isAdminMode = false;
+let pendingDeleteGlobalIndex = null;
 
+// Handle Admin URL parameters (?admin=yes or ?admin=no)
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('admin') === 'yes') {
     localStorage.setItem('chines_admin', 'true');
+} else if (urlParams.get('admin') === 'no') {
+    localStorage.removeItem('chines_admin');
 }
 
 if (localStorage.getItem('chines_admin') === 'true') {
@@ -58,7 +67,44 @@ modalOverlay.addEventListener('click', (e) => {
     }
 });
 
-// Carousel Navigation Arrows with Smooth Fade
+// Delete Modal Controls
+closeDeleteModalBtn.addEventListener('click', () => {
+    deleteModalOverlay.classList.remove('active');
+    pendingDeleteGlobalIndex = null;
+});
+
+cancelDeleteBtn.addEventListener('click', () => {
+    deleteModalOverlay.classList.remove('active');
+    pendingDeleteGlobalIndex = null;
+});
+
+deleteModalOverlay.addEventListener('click', (e) => {
+    if (e.target === deleteModalOverlay) {
+        deleteModalOverlay.classList.remove('active');
+        pendingDeleteGlobalIndex = null;
+    }
+});
+
+confirmDeleteBtn.addEventListener('click', () => {
+    if (pendingDeleteGlobalIndex !== null) {
+        const data = getStoredLevels();
+        let allLevels = [...data.main, ...data.extended, ...data.legacy];
+        
+        // Remove target index
+        allLevels.splice(pendingDeleteGlobalIndex, 1);
+
+        // Re-distribute tiers cleanly
+        data.main = allLevels.slice(0, 14);
+        data.extended = allLevels.slice(14, 50);
+        data.legacy = allLevels.slice(50, 100);
+
+        localStorage.setItem('chines_levels', JSON.stringify(data));
+        deleteModalOverlay.classList.remove('active');
+        pendingDeleteGlobalIndex = null;
+        renderLevels();
+    }
+});
+
 function updateCarousel(direction) {
     levelsContainer.style.opacity = '0';
     categoryTitle.style.opacity = '0';
@@ -102,7 +148,7 @@ function getYouTubeThumbnail(url) {
     } else if (url.includes("watch?v=")) {
         videoId = url.split("watch?v=")[1]?.split("&")[0];
     }
-    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "https://via.placeholder.com/90x50?text=No+Thumb";
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "https://via.placeholder.com/85x48?text=No+Thumb";
 }
 
 function getStoredLevels() {
@@ -121,16 +167,29 @@ function renderLevels() {
         return;
     }
 
-    // Calculate baseline rank offset based on category tier
     let rankOffset = 0;
     if (currentCatKey === 'extended') rankOffset = 14;
     if (currentCatKey === 'legacy') rankOffset = 50;
 
+    const isUnlockedAdmin = localStorage.getItem('chines_admin') === 'true';
+
     categoryLevels.forEach((lvl, index) => {
         const actualRank = rankOffset + index + 1;
+        const globalIndex = rankOffset + index;
         const thumbUrl = getYouTubeThumbnail(lvl.youtube);
+        
         const card = document.createElement('div');
         card.className = 'level-card';
+
+        // Build action buttons layout (shows Delete button next to Watch Proof if admin is unlocked)
+        let actionsHTML = `<a href="${escapeHtml(lvl.youtube)}" target="_blank" class="yt-link">Watch Proof</a>`;
+        if (isUnlockedAdmin) {
+            actionsHTML = `
+                <button class="delete-btn" data-global-index="${globalIndex}">Delete from list</button>
+                <a href="${escapeHtml(lvl.youtube)}" target="_blank" class="yt-link">Watch Proof</a>
+            `;
+        }
+
         card.innerHTML = `
             <div class="level-left">
                 <img src="${thumbUrl}" alt="Thumbnail" class="level-thumb">
@@ -139,10 +198,22 @@ function renderLevels() {
                     <p>Creator: <strong>${escapeHtml(lvl.creator)}</strong> | Verifier: <strong>${escapeHtml(lvl.verifier)}</strong> | Duration: ${escapeHtml(lvl.duration)}</p>
                 </div>
             </div>
-            <a href="${escapeHtml(lvl.youtube)}" target="_blank" class="yt-link">Watch Proof</a>
+            <div class="level-actions">
+                ${actionsHTML}
+            </div>
         `;
         levelsContainer.appendChild(card);
     });
+
+    // Attach click listeners to all dynamically created delete buttons
+    if (isUnlockedAdmin) {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                pendingDeleteGlobalIndex = parseInt(e.target.getAttribute('data-global-index'));
+                deleteModalOverlay.classList.add('active');
+            });
+        });
+    }
 }
 
 levelForm.addEventListener('submit', (e) => {
@@ -159,25 +230,19 @@ levelForm.addEventListener('submit', (e) => {
     if (isAdminMode) {
         const data = getStoredLevels();
         let targetPos = parseInt(document.getElementById('levelPosition').value);
-        let currentCatKey = categories[currentCatIndex];
 
         let globalIndex = targetPos ? targetPos - 1 : 0;
-        
-        // Flatten all categories to handle continuous shifting across Main -> Extended -> Legacy (up to 100)
         let allLevels = [...data.main, ...data.extended, ...data.legacy];
         
         if (isNaN(globalIndex) || globalIndex < 0) globalIndex = 0;
         if (globalIndex > allLevels.length) globalIndex = allLevels.length;
 
-        // Insert at target global position
         allLevels.splice(globalIndex, 0, newLevel);
 
-        // Cap legacy at max 100 items total
         if (allLevels.length > 100) {
             allLevels = allLevels.slice(0, 100);
         }
 
-        // Redistribute strictly into tiers: Main (1-14), Extended (15-50), Legacy (51-100)
         data.main = allLevels.slice(0, 14);
         data.extended = allLevels.slice(14, 50);
         data.legacy = allLevels.slice(50, 100);
@@ -187,7 +252,7 @@ levelForm.addEventListener('submit', (e) => {
         modalOverlay.classList.remove('active');
         levelForm.reset();
         renderLevels();
-        alert(`Level successfully added to position #${globalIndex + 1}! Tiers updated.`);
+        alert(`Level successfully added to position #${globalIndex + 1}!`);
     } else {
         const email = "zubykyurko@gmail.com";
         const subject = encodeURIComponent("New level request!");
