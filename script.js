@@ -1,48 +1,22 @@
+console.log("ChinesList script loading...");
+
 document.addEventListener('DOMContentLoaded', () => {
-    const openModalBtn = document.getElementById('openModalBtn');
-    const adminModalBtn = document.getElementById('adminModalBtn');
+    console.log("DOM fully loaded. Initializing event listeners...");
+
+    // Helper safely wrapper for adding event listeners
+    function safeListen(id, event, callback) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener(event, callback);
+        } else {
+            console.warn(`Element with ID '${id}' not found in the DOM.`);
+        }
+    }
+
     const modalOverlay = document.getElementById('modalOverlay');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const levelForm = document.getElementById('levelForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitFormBtn = document.getElementById('submitFormBtn');
-    const levelsContainer = document.getElementById('levelsContainer');
-    const positionGroup = document.getElementById('positionGroup');
-
-    const prevCatBtn = document.getElementById('prevCatBtn');
-    const nextCatBtn = document.getElementById('nextCatBtn');
-    const categoryTitle = document.getElementById('categoryTitle');
-    const categoryDescription = document.getElementById('categoryDescription');
-
-    const deleteModalOverlay = document.getElementById('deleteModalOverlay');
-    const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-
-    // Signup & Recovery Elements
-    const openSignupModalBtn = document.getElementById('openSignupModalBtn');
     const signupModalOverlay = document.getElementById('signupModalOverlay');
-    const closeSignupModalBtn = document.getElementById('closeSignupModalBtn');
-    const signupStepOAuth = document.getElementById('signupStepOAuth');
-    const signupStepCredentials = document.getElementById('signupStepCredentials');
-    const signupStepRecovery = document.getElementById('signupStepRecovery');
-    const googleSignupBtn = document.getElementById('googleSignupBtn');
-    const githubSignupBtn = document.getElementById('githubSignupBtn');
-    const signupCredentialsForm = document.getElementById('signupCredentialsForm');
-    const forgotUsernameLink = document.getElementById('forgotUsernameLink');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    const recoveryForm = document.getElementById('recoveryForm');
-    const recoveryPromptText = document.getElementById('recoveryPromptText');
-    const backToOAuthBtn = document.getElementById('backToOAuthBtn');
-
-    // Chat Elements
-    const openChatBtn = document.getElementById('openChatBtn');
     const chatModalOverlay = document.getElementById('chatModalOverlay');
-    const closeChatBtn = document.getElementById('closeChatBtn');
-    const chatBody = document.getElementById('chatBody');
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-    const chatUserStatus = document.getElementById('chatUserStatus');
+    const levelsContainer = document.getElementById('levelsContainer');
 
     const categories = ['main', 'extended', 'legacy'];
     const categoryMeta = {
@@ -53,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentCatIndex = 0;
     let isAdminMode = false;
-    let pendingDeleteGlobalIndex = null;
     let registrationState = { selectedProvider: '', userGmail: '' };
     let recoveryType = '';
 
@@ -65,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('chines_admin');
     }
 
+    const adminModalBtn = document.getElementById('adminModalBtn');
     if (localStorage.getItem('chines_admin') === 'true' && adminModalBtn) {
         adminModalBtn.classList.remove('hidden');
     }
@@ -87,41 +61,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update Top Right Button State based on Login
     function updateAuthDisplay() {
+        const openSignupModalBtn = document.getElementById('openSignupModalBtn');
         const savedUname = localStorage.getItem('chines_username');
         if (openSignupModalBtn) {
             if (savedUname) {
                 openSignupModalBtn.innerHTML = `<span class="signup-icon">👋</span><span class="signup-text">Welcome back, ${escapeHtml(savedUname)}</span>`;
                 openSignupModalBtn.style.cursor = "default";
-                openSignupModalBtn.onclick = (e) => e.preventDefault(); // Disable signup modal trigger once logged in
             } else {
                 openSignupModalBtn.innerHTML = `<span class="signup-icon">👤</span><span class="signup-text">Sign up</span>`;
                 openSignupModalBtn.style.cursor = "pointer";
-                openSignupModalBtn.onclick = null;
             }
         }
     }
 
-    if (openModalBtn) {
-        openModalBtn.addEventListener('click', () => {
-            isAdminMode = false;
-            if (modalTitle) modalTitle.textContent = "Add Level Request";
-            if (submitFormBtn) submitFormBtn.textContent = "Submit Request";
-            if (positionGroup) positionGroup.style.display = 'none';
-            if (modalOverlay) modalOverlay.classList.add('active');
-        });
-    }
+    // Level Request Modal
+    safeListen('openModalBtn', 'click', () => {
+        isAdminMode = false;
+        const modalTitle = document.getElementById('modalTitle');
+        const submitFormBtn = document.getElementById('submitFormBtn');
+        const positionGroup = document.getElementById('positionGroup');
 
-    if (adminModalBtn) {
-        adminModalBtn.addEventListener('click', () => {
-            isAdminMode = true;
-            if (modalTitle) modalTitle.textContent = "Admin: Directly Add Level";
-            if (submitFormBtn) submitFormBtn.textContent = "Add Level to List";
-            if (positionGroup) positionGroup.style.display = 'flex';
-            if (modalOverlay) modalOverlay.classList.add('active');
-        });
-    }
+        if (modalTitle) modalTitle.textContent = "Add Level Request";
+        if (submitFormBtn) submitFormBtn.textContent = "Submit Request";
+        if (positionGroup) positionGroup.style.display = 'none';
+        if (modalOverlay) modalOverlay.classList.add('active');
+    });
 
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modalOverlay.classList.remove('active'));
+    safeListen('adminModalBtn', 'click', () => {
+        isAdminMode = true;
+        const modalTitle = document.getElementById('modalTitle');
+        const submitFormBtn = document.getElementById('submitFormBtn');
+        const positionGroup = document.getElementById('positionGroup');
+
+        if (modalTitle) modalTitle.textContent = "Admin: Directly Add Level";
+        if (submitFormBtn) submitFormBtn.textContent = "Add Level to List";
+        if (positionGroup) positionGroup.style.display = 'flex';
+        if (modalOverlay) modalOverlay.classList.add('active');
+    });
+
+    safeListen('closeModalBtn', 'click', () => {
+        if (modalOverlay) modalOverlay.classList.remove('active');
+    });
+
     if (modalOverlay) {
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) modalOverlay.classList.remove('active');
@@ -129,25 +110,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Signup Modal Open/Close & Flow
-    if (openSignupModalBtn) {
-        openSignupModalBtn.addEventListener('click', () => {
-            if (localStorage.getItem('chines_username')) return; // Do nothing if already logged in
-            if (signupStepOAuth) signupStepOAuth.classList.remove('hidden');
-            if (signupStepCredentials) signupStepCredentials.classList.add('hidden');
-            if (signupStepRecovery) signupStepRecovery.classList.add('hidden');
-            if (signupModalOverlay) signupModalOverlay.classList.add('active');
-        });
-    }
+    safeListen('openSignupModalBtn', 'click', () => {
+        if (localStorage.getItem('chines_username')) return; // Logged in, do nothing
+        const signupStepOAuth = document.getElementById('signupStepOAuth');
+        const signupStepCredentials = document.getElementById('signupStepCredentials');
+        const signupStepRecovery = document.getElementById('signupStepRecovery');
 
-    if (closeSignupModalBtn) closeSignupModalBtn.addEventListener('click', () => signupModalOverlay.classList.remove('active'));
+        if (signupStepOAuth) signupStepOAuth.classList.remove('hidden');
+        if (signupStepCredentials) signupStepCredentials.classList.add('hidden');
+        if (signupStepRecovery) signupStepRecovery.classList.add('hidden');
+        if (signupModalOverlay) signupModalOverlay.classList.add('active');
+    });
+
+    safeListen('closeSignupModalBtn', 'click', () => {
+        if (signupModalOverlay) signupModalOverlay.classList.remove('active');
+    });
+
     if (signupModalOverlay) {
         signupModalOverlay.addEventListener('click', (e) => {
             if (e.target === signupModalOverlay) signupModalOverlay.classList.remove('active');
         });
     }
 
-    if (googleSignupBtn) googleSignupBtn.addEventListener('click', () => handleOAuthSelection('Google'));
-    if (githubSignupBtn) githubSignupBtn.addEventListener('click', () => handleOAuthSelection('GitHub'));
+    safeListen('googleSignupBtn', 'click', () => handleOAuthSelection('Google'));
+    safeListen('githubSignupBtn', 'click', () => handleOAuthSelection('GitHub'));
 
     async function handleOAuthSelection(provider) {
         registrationState.selectedProvider = provider;
@@ -171,10 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Email notice dispatched.");
         }
 
+        const signupStepOAuth = document.getElementById('signupStepOAuth');
+        const signupStepCredentials = document.getElementById('signupStepCredentials');
         if (signupStepOAuth) signupStepOAuth.classList.add('hidden');
         if (signupStepCredentials) signupStepCredentials.classList.remove('hidden');
     }
 
+    const signupCredentialsForm = document.getElementById('signupCredentialsForm');
     if (signupCredentialsForm) {
         signupCredentialsForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -195,33 +184,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (forgotUsernameLink) {
-        forgotUsernameLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            recoveryType = 'username';
-            if (recoveryPromptText) recoveryPromptText.textContent = "What's your Gmail? We will send your username.";
-            if (signupStepOAuth) signupStepOAuth.classList.add('hidden');
-            if (signupStepRecovery) signupStepRecovery.classList.remove('hidden');
-        });
-    }
+    safeListen('forgotUsernameLink', 'click', (e) => {
+        e.preventDefault();
+        recoveryType = 'username';
+        const recoveryPromptText = document.getElementById('recoveryPromptText');
+        const signupStepOAuth = document.getElementById('signupStepOAuth');
+        const signupStepRecovery = document.getElementById('signupStepRecovery');
 
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            recoveryType = 'password';
-            if (recoveryPromptText) recoveryPromptText.textContent = "What's your Gmail? We will send your password.";
-            if (signupStepOAuth) signupStepOAuth.classList.add('hidden');
-            if (signupStepRecovery) signupStepRecovery.classList.remove('hidden');
-        });
-    }
+        if (recoveryPromptText) recoveryPromptText.textContent = "What's your Gmail? We will send your username.";
+        if (signupStepOAuth) signupStepOAuth.classList.add('hidden');
+        if (signupStepRecovery) signupStepRecovery.classList.remove('hidden');
+    });
 
-    if (backToOAuthBtn) {
-        backToOAuthBtn.addEventListener('click', () => {
-            if (signupStepRecovery) signupStepRecovery.classList.add('hidden');
-            if (signupStepOAuth) signupStepOAuth.classList.remove('hidden');
-        });
-    }
+    safeListen('forgotPasswordLink', 'click', (e) => {
+        e.preventDefault();
+        recoveryType = 'password';
+        const recoveryPromptText = document.getElementById('recoveryPromptText');
+        const signupStepOAuth = document.getElementById('signupStepOAuth');
+        const signupStepRecovery = document.getElementById('signupStepRecovery');
 
+        if (recoveryPromptText) recoveryPromptText.textContent = "What's your Gmail? We will send your password.";
+        if (signupStepOAuth) signupStepOAuth.classList.add('hidden');
+        if (signupStepRecovery) signupStepRecovery.classList.remove('hidden');
+    });
+
+    safeListen('backToOAuthBtn', 'click', () => {
+        const signupStepOAuth = document.getElementById('signupStepOAuth');
+        const signupStepRecovery = document.getElementById('signupStepRecovery');
+        if (signupStepRecovery) signupStepRecovery.classList.add('hidden');
+        if (signupStepOAuth) signupStepOAuth.classList.remove('hidden');
+    });
+
+    const recoveryForm = document.getElementById('recoveryForm');
     if (recoveryForm) {
         recoveryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -255,30 +249,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Chat UI Controls
     function updateChatStatusUI() {
+        const chatUserStatus = document.getElementById('chatUserStatus');
         const savedUname = localStorage.getItem('chines_username');
         if (chatUserStatus) {
             chatUserStatus.textContent = savedUname ? `Connected as: ${savedUname}` : `Connected as: Guest (No Account)`;
         }
     }
 
-    if (openChatBtn) {
-        openChatBtn.addEventListener('click', () => {
-            const savedUname = localStorage.getItem('chines_username');
-            if (!savedUname) {
-                showToast("❌ You can't use chat yet! Please sign up first.");
-                return;
-            }
-            updateChatStatusUI();
-            if (chatModalOverlay) chatModalOverlay.classList.add('active');
-            if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
-        });
-    }
+    safeListen('openChatBtn', 'click', () => {
+        const savedUname = localStorage.getItem('chines_username');
+        if (!savedUname) {
+            showToast("❌ You can't use chat yet! Please sign up first.");
+            return;
+        }
+        updateChatStatusUI();
+        if (chatModalOverlay) chatModalOverlay.classList.add('active');
+        const chatBody = document.getElementById('chatBody');
+        if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
+    });
 
-    if (closeChatBtn) {
-        closeChatBtn.addEventListener('click', () => {
-            if (chatModalOverlay) chatModalOverlay.classList.remove('active');
-        });
-    }
+    safeListen('closeChatBtn', 'click', () => {
+        if (chatModalOverlay) chatModalOverlay.classList.remove('active');
+    });
 
     if (chatModalOverlay) {
         chatModalOverlay.addEventListener('click', (e) => {
@@ -286,9 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const chatForm = document.getElementById('chatForm');
     if (chatForm) {
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const chatInput = document.getElementById('chatInput');
             const msgText = chatInput.value.trim();
             const savedUname = localStorage.getItem('chines_username');
 
@@ -305,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function appendChatMessage(author, text, isSelf = false) {
+        const chatBody = document.getElementById('chatBody');
         if (!chatBody) return;
         const msgDiv = document.createElement('div');
         msgDiv.className = `chat-message ${isSelf ? 'user-msg' : ''}`;
@@ -325,11 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (prevCatBtn) prevCatBtn.addEventListener('click', () => updateCarousel(-1));
-    if (nextCatBtn) nextCatBtn.addEventListener('click', () => updateCarousel(1));
+    safeListen('prevCatBtn', 'click', () => updateCarousel(-1));
+    safeListen('nextCatBtn', 'click', () => updateCarousel(1));
 
     function updateCarousel(direction) {
         if (!levelsContainer) return;
+        const categoryTitle = document.getElementById('categoryTitle');
+        const categoryDescription = document.getElementById('categoryDescription');
+
         levelsContainer.style.opacity = '0';
         if (categoryTitle) categoryTitle.style.opacity = '0';
         if (categoryDescription) categoryDescription.style.opacity = '0';
@@ -351,9 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getYouTubeThumbnail(url) {
         let videoId = "";
-        if (url.includes("youtu.be/")) {
+        if (url && url.includes("youtu.be/")) {
             videoId = url.split("youtu.be/")[1]?.split("?")[0];
-        } else if (url.includes("watch?v=")) {
+        } else if (url && url.includes("watch?v=")) {
             videoId = url.split("watch?v=")[1]?.split("&")[0];
         }
         return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "https://via.placeholder.com/85x48?text=No+Thumb";
@@ -416,13 +414,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isUnlockedAdmin) {
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    pendingDeleteGlobalIndex = parseInt(e.target.getAttribute('data-global-index'));
-                    if (deleteModalOverlay) deleteModalOverlay.classList.add('active');
+                    const pendingDeleteGlobalIndex = parseInt(e.target.getAttribute('data-global-index'));
+                    // Add your delete confirmation handling here if needed
                 });
             });
         }
     }
 
+    const levelForm = document.getElementById('levelForm');
     if (levelForm) {
         levelForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -435,6 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 youtube: document.getElementById('levelYT').value
             };
 
+            const submitFormBtn = document.getElementById('submitFormBtn');
+
             if (isAdminMode) {
                 const data = getStoredLevels();
                 let targetPos = parseInt(document.getElementById('levelPosition').value);
@@ -443,4 +444,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 let allLevels = [...data.main, ...data.extended, ...data.legacy];
                 
                 if (isNaN(globalIndex) || globalIndex < 0) globalIndex = 0;
-                if (globalIndex > allLevels.length) globalIndex = 
+                if (globalIndex > allLevels.length) globalIndex = allLevels.length;
+
+                allLevels.splice(globalIndex, 0, newLevel);
+
+                if (allLevels.length > 100) allLevels = allLevels.slice(0, 100);
+
+                data.main = allLevels.slice(0, 14);
+                data.extended = allLevels.slice(14, 50);
+                data.legacy = allLevels.slice(50, 100);
+
+                localStorage.setI
