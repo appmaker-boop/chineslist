@@ -1,18 +1,4 @@
-console.log("ChinesList script loading...");
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM fully loaded. Initializing event listeners...");
-
-    // Helper safely wrapper for adding event listeners
-    function safeListen(id, event, callback) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener(event, callback);
-        } else {
-            console.warn(`Element with ID '${id}' not found in the DOM.`);
-        }
-    }
-
     const modalOverlay = document.getElementById('modalOverlay');
     const signupModalOverlay = document.getElementById('signupModalOverlay');
     const chatModalOverlay = document.getElementById('chatModalOverlay');
@@ -30,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let registrationState = { selectedProvider: '', userGmail: '' };
     let recoveryType = '';
 
-    // Check Admin parameters
+    // Admin URL parameters handler
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin') === 'yes') {
         localStorage.setItem('chines_admin', 'true');
@@ -59,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Update Top Right Button State based on Login
+    // Dynamic Auth Button UI (Replaces "Sign up" with "Welcome back, [Name]")
     function updateAuthDisplay() {
         const openSignupModalBtn = document.getElementById('openSignupModalBtn');
         const savedUname = localStorage.getItem('chines_username');
@@ -74,7 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Level Request Modal
+    // Safe Event Binding Helper
+    function safeListen(id, event, callback) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(event, callback);
+    }
+
+    // Level Request Modal Controls
     safeListen('openModalBtn', 'click', () => {
         isAdminMode = false;
         const modalTitle = document.getElementById('modalTitle');
@@ -99,19 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalOverlay) modalOverlay.classList.add('active');
     });
 
-    safeListen('closeModalBtn', 'click', () => {
-        if (modalOverlay) modalOverlay.classList.remove('active');
-    });
-
+    safeListen('closeModalBtn', 'click', () => modalOverlay.classList.remove('active'));
     if (modalOverlay) {
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) modalOverlay.classList.remove('active');
         });
     }
 
-    // Signup Modal Open/Close & Flow
+    // Signup & Auth Flow
     safeListen('openSignupModalBtn', 'click', () => {
-        if (localStorage.getItem('chines_username')) return; // Logged in, do nothing
+        if (localStorage.getItem('chines_username')) return; // Already logged in, block trigger
         const signupStepOAuth = document.getElementById('signupStepOAuth');
         const signupStepCredentials = document.getElementById('signupStepCredentials');
         const signupStepRecovery = document.getElementById('signupStepRecovery');
@@ -122,10 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (signupModalOverlay) signupModalOverlay.classList.add('active');
     });
 
-    safeListen('closeSignupModalBtn', 'click', () => {
-        if (signupModalOverlay) signupModalOverlay.classList.remove('active');
-    });
-
+    safeListen('closeSignupModalBtn', 'click', () => signupModalOverlay.classList.remove('active'));
     if (signupModalOverlay) {
         signupModalOverlay.addEventListener('click', (e) => {
             if (e.target === signupModalOverlay) signupModalOverlay.classList.remove('active');
@@ -247,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Chat UI Controls
+    // Chat Controls
     function updateChatStatusUI() {
         const chatUserStatus = document.getElementById('chatUserStatus');
         const savedUname = localStorage.getItem('chines_username');
@@ -268,10 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
     });
 
-    safeListen('closeChatBtn', 'click', () => {
-        if (chatModalOverlay) chatModalOverlay.classList.remove('active');
-    });
-
+    safeListen('closeChatBtn', 'click', () => chatModalOverlay.classList.remove('active'));
     if (chatModalOverlay) {
         chatModalOverlay.addEventListener('click', (e) => {
             if (e.target === chatModalOverlay) chatModalOverlay.classList.remove('active');
@@ -320,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Carousel Navigation
     safeListen('prevCatBtn', 'click', () => updateCarousel(-1));
     safeListen('nextCatBtn', 'click', () => updateCarousel(1));
 
@@ -414,8 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isUnlockedAdmin) {
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const pendingDeleteGlobalIndex = parseInt(e.target.getAttribute('data-global-index'));
-                    // Add your delete confirmation handling here if needed
+                    const globalIdx = parseInt(e.target.getAttribute('data-global-index'));
+                    let allLevels = [...data.main, ...data.extended, ...data.legacy];
+                    allLevels.splice(globalIdx, 1);
+
+                    data.main = allLevels.slice(0, 14);
+                    data.extended = allLevels.slice(14, 50);
+                    data.legacy = allLevels.slice(50, 100);
+
+                    localStorage.setItem('chines_levels', JSON.stringify(data));
+                    renderLevels();
+                    showToast("Level deleted successfully!");
                 });
             });
         }
@@ -451,7 +444,4 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allLevels.length > 100) allLevels = allLevels.slice(0, 100);
 
                 data.main = allLevels.slice(0, 14);
-                data.extended = allLevels.slice(14, 50);
-                data.legacy = allLevels.slice(50, 100);
-
-                localStorage.setI
+                data.extended = allLevels.slice(14,
