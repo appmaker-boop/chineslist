@@ -3,176 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChinesList - GD Level List</title>
+    <title>ChinesList - Geometry Dash Demon List</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="stars-container"></div>
 
-    <header class="header">
+    <!-- Header / Navigation Bar -->
+    <header class="site-header">
         <div class="logo-area">
             <h1>ChinesList</h1>
-            <span class="subtitle">Geometry Dash Demon List</span>
         </div>
-        <div class="header-actions">
-            <button class="icon-btn signup-top-btn" id="openSignupModalBtn" title="Sign Up">
-                <span class="signup-icon">👤</span>
-                <span class="signup-text">Sign up</span>
+        <div class="nav-buttons">
+            <button id="openChatBtn" class="nav-btn chat-btn">
+                <span class="btn-icon">💬</span> Chat
             </button>
-            <div class="stacked-action-buttons">
-                <button class="icon-btn plus-btn" id="openModalBtn" title="Add Level">➕</button>
-                <button class="icon-btn rainbow-btn hidden" id="adminModalBtn" title="Admin Add Level">🌈➕</button>
-                <button class="icon-btn chat-toggle-btn" id="openChatBtn" title="Open Chat">💬</button>
-            </div>
+            <button id="openSignupModalBtn" class="nav-btn signup-btn">
+                <span class="signup-icon">👤</span><span class="signup-text">Sign up</span>
+            </button>
         </div>
     </header>
 
+    <!-- Main Content Area -->
     <main class="main-container">
-        <section class="category-carousel-section">
-            <div class="carousel-nav-container">
-                <button class="carousel-arrow" id="prevCatBtn" title="Previous List">&#10094;</button>
-                <div class="carousel-label-wrapper">
-                    <h2 id="categoryTitle">Main List</h2>
-                </div>
-                <button class="carousel-arrow" id="nextCatBtn" title="Next List">&#10095;</button>
+        
+        <!-- Category & Carousel Banner -->
+        <section class="category-banner">
+            <button id="prevCatBtn" class="carousel-arrow">❮</button>
+            <div class="category-info">
+                <h2 id="categoryTitle">Main List</h2>
+                <p id="categoryDescription">The hardest demons in Geometry Dash (Top 1 - 14).</p>
             </div>
-            <p id="categoryDescription" class="carousel-description">The hardest demons in Geometry Dash (Top 1 - 14).</p>
+            <button id="nextCatBtn" class="carousel-arrow">❯</button>
         </section>
 
-        <section class="levels-section">
-            <div id="levelsContainer" class="levels-grid"></div>
-        </section>
+        <!-- Action Toolbar -->
+        <div class="toolbar">
+            <button id="openModalBtn" class="primary-action-btn">Request Level</button>
+            <button id="adminModalBtn" class="admin-action-btn hidden">Admin Panel</button>
+        </div>
+
+        <!-- Levels Container -->
+        <div id="levelsContainer" class="levels-grid">
+            <!-- Dynamically populated via JavaScript -->
+        </div>
+
     </main>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add Level Request</h2>
-                <button class="close-btn" id="closeModalBtn">&times;</button>
-            </div>
-            <form id="levelForm" class="level-form">
-                <div class="input-group" id="positionGroup" style="display: none;">
-                    <label>Placement Position (e.g., 1 for Top 1)</label>
-                    <input type="number" id="levelPosition" min="1" placeholder="1">
-                    <button type="button" class="apply-field-btn">Apply</button>
+    <!-- Modal: Request Level / Admin Add Level -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <h2 id="modalTitle">Add Level Request</h2>
+            <form id="levelForm">
+                <div class="form-group" id="positionGroup" style="display: none;">
+                    <label for="levelPosition">Target Position (Admin)</label>
+                    <input type="number" id="levelPosition" min="1" max="100" placeholder="e.g. 1">
                 </div>
-                <div class="input-group">
-                    <label>Level Name</label>
-                    <input type="text" id="levelName" required placeholder="e.g., Slaughterhouse">
-                    <button type="button" class="apply-field-btn">Apply</button>
+                <div class="form-group">
+                    <label for="levelName">Level Name</label>
+                    <input type="text" id="levelName" required placeholder="e.g. Slaughterhouse">
                 </div>
-                <div class="input-group">
-                    <label>Duration</label>
-                    <input type="text" id="levelDuration" required placeholder="e.g., 1m 30s">
-                    <button type="button" class="apply-field-btn">Apply</button>
+                <div class="form-group">
+                    <label for="levelDuration">Duration</label>
+                    <input type="text" id="levelDuration" required placeholder="e.g. 1m 32s">
                 </div>
-                <div class="input-group">
-                    <label>Creator</label>
-                    <input type="text" id="levelCreator" required placeholder="Your GD Username">
-                    <button type="button" class="apply-field-btn">Apply</button>
+                <div class="form-group">
+                    <label for="levelCreator">Creator</label>
+                    <input type="text" id="levelCreator" required placeholder="e.g. IcEDCave">
                 </div>
-                <div class="input-group">
-                    <label>Verifier</label>
-                    <input type="text" id="levelVerifier" required placeholder="Verifier Username">
-                    <button type="button" class="apply-field-btn">Apply</button>
+                <div class="form-group">
+                    <label for="levelVerifier">Verifier</label>
+                    <input type="text" id="levelVerifier" required placeholder="e.g. Dillon">
                 </div>
-                <div class="input-group">
-                    <label>YouTube Link (Proof)</label>
+                <div class="form-group">
+                    <label for="levelYT">YouTube Proof Link</label>
                     <input type="url" id="levelYT" required placeholder="https://youtube.com/watch?v=...">
-                    <button type="button" class="apply-field-btn">Apply</button>
                 </div>
-                <button type="submit" class="submit-request-btn" id="submitFormBtn">Submit Request</button>
+                <div class="modal-actions">
+                    <button type="button" id="closeModalBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" id="submitFormBtn" class="btn-primary">Submit Request</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="modal-overlay" id="signupModalOverlay">
-        <div class="modal-content signup-modal-content">
-            <div class="modal-header">
-                <h2>Sign Up</h2>
-                <button class="close-btn" id="closeSignupModalBtn">&times;</button>
-            </div>
+    <!-- Modal: Signup & Account Flow -->
+    <div id="signupModalOverlay" class="modal-overlay">
+        <div class="modal-box auth-modal">
+            <button type="button" id="closeSignupModalBtn" class="close-x">&times;</button>
             
-            <div id="signupStepOAuth" class="signup-step">
+            <!-- Step 1: OAuth Choice -->
+            <div id="signupStepOAuth" class="auth-step">
+                <h2>Join ChinesList</h2>
+                <p>Sign up to unlock real-time community chat and track your activity.</p>
                 <div class="oauth-buttons">
-                    <button class="oauth-btn google-btn" id="googleSignupBtn">
-                        <span class="oauth-icon">G</span>
-                        <span class="oauth-text">Sign up with Google</span>
-                    </button>
-                    <button class="oauth-btn github-btn" id="githubSignupBtn">
-                        <span class="oauth-icon">🐙</span>
-                        <span class="oauth-text">Sign up with GitHub</span>
-                    </button>
+                    <button id="googleSignupBtn" class="oauth-btn google">Continue with Google</button>
+                    <button id="githubSignupBtn" class="oauth-btn github">Continue with GitHub</button>
                 </div>
-                <div class="recovery-links">
-                    <a href="#" id="forgotUsernameLink">Forgot Username?</a>
+                <div class="auth-links-group">
+                    <a href="#" id="forgotUsernameLink">Forgot Username?</a> | 
                     <a href="#" id="forgotPasswordLink">Forgot Password?</a>
                 </div>
             </div>
 
-            <div id="signupStepCredentials" class="signup-step hidden">
-                <form id="signupCredentialsForm" class="level-form">
-                    <div class="input-group">
-                        <label>Choose Username</label>
-                        <input type="text" id="newUsername" required placeholder="e.g., GeometryMaster">
+            <!-- Step 2: Set Credentials -->
+            <div id="signupStepCredentials" class="auth-step hidden">
+                <h2>Create Credentials</h2>
+                <form id="signupCredentialsForm">
+                    <div class="form-group">
+                        <label for="newUsername">Choose Username</label>
+                        <input type="text" id="newUsername" required placeholder="Username">
                     </div>
-                    <div class="input-group">
-                        <label>Choose Password</label>
-                        <input type="password" id="newPassword" required placeholder="••••••••">
+                    <div class="form-group">
+                        <label for="newPassword">Choose Password</label>
+                        <input type="password" id="newPassword" required placeholder="Password">
                     </div>
-                    <button type="submit" class="submit-request-btn">Complete Sign Up</button>
+                    <button type="submit" class="btn-primary full-width">Complete Registration</button>
                 </form>
             </div>
 
-            <div id="signupStepRecovery" class="signup-step hidden">
-                <form id="recoveryForm" class="level-form">
-                    <p class="delete-confirmation-text" id="recoveryPromptText">What's your Gmail?</p>
-                    <div class="input-group">
-                        <label>Your Registered Gmail</label>
-                        <input type="email" id="recoveryEmail" required placeholder="name@gmail.com">
+            <!-- Step 3: Account Recovery -->
+            <div id="signupStepRecovery" class="auth-step hidden">
+                <h2>Account Recovery</h2>
+                <p id="recoveryPromptText">Enter your Gmail to recover your details.</p>
+                <form id="recoveryForm">
+                    <div class="form-group">
+                        <label for="recoveryEmail">Gmail Address</label>
+                        <input type="email" id="recoveryEmail" required placeholder="yourname@gmail.com">
                     </div>
-                    <button type="submit" class="submit-request-btn">Done</button>
-                    <button type="button" class="cancel-delete" id="backToOAuthBtn" style="margin-top: 5px; width: 100%;">Back</button>
+                    <div class="recovery-actions">
+                        <button type="button" id="backToOAuthBtn" class="btn-secondary">Back</button>
+                        <button type="submit" class="btn-primary">Send Recovery Mail</button>
+                    </div>
                 </form>
             </div>
+
         </div>
     </div>
 
-    <div class="modal-overlay" id="chatModalOverlay">
-        <div class="chat-window">
+    <!-- Modal: Chat Window -->
+    <div id="chatModalOverlay" class="modal-overlay">
+        <div class="modal-box chat-modal-box">
             <div class="chat-header">
-                <div class="chat-header-info">
-                    <h3>ChinesList Global Chat</h3>
-                    <span id="chatUserStatus">Connected as: Guest</span>
+                <div>
+                    <h2>Community Chat</h2>
+                    <span id="chatUserStatus" class="chat-status">Connected as: Guest</span>
                 </div>
-                <button class="close-btn" id="closeChatBtn">&times;</button>
+                <button type="button" id="closeChatBtn" class="close-x">&times;</button>
             </div>
-            <div class="chat-body" id="chatBody">
-                <div class="chat-message system-msg">Welcome to ChinesList Chat! Be respectful to everyone.</div>
+            <div id="chatBody" class="chat-body">
+                <!-- Chat messages load here -->
             </div>
-            <form class="chat-footer" id="chatForm">
-                <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" required>
-                <button type="submit" class="chat-send-btn">➤</button>
+            <form id="chatForm" class="chat-input-area">
+                <input type="text" id="chatInput" autocomplete="off" placeholder="Type a message..." required>
+                <button type="submit" class="btn-primary">Send</button>
             </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="deleteModalOverlay">
-        <div class="modal-content delete-modal-content">
-            <div class="modal-header">
-                <h2>Confirm Deletion</h2>
-                <button class="close-btn" id="closeDeleteModalBtn">&times;</button>
-            </div>
-            <p class="delete-confirmation-text">Are you sure you want to permanently remove this level from the list? This will shift all subsequent levels up by one position.</p>
-            <div class="delete-modal-actions">
-                <button class="delete-action-btn confirm-delete" id="confirmDeleteBtn">I want to delete this level</button>
-                <button class="delete-action-btn cancel-delete" id="cancelDeleteBtn">I changed my mind</button>
-            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-                </html>
-                
+</html>
