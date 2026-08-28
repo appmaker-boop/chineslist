@@ -254,7 +254,7 @@ levelForm.addEventListener('submit', (e) => {
         renderLevels();
         alert(`Level successfully added to position #${globalIndex + 1}!`);
     } else {
-        const email = "zubykyurko@gmail.com";
+        const email = "chineslistlevelrequestor@gmail.com";
         const subject = encodeURIComponent("New level request!");
         const body = encodeURIComponent(
             `Level Name: ${newLevel.name}\n` +
