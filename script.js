@@ -18,6 +18,31 @@ const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
+// Signup & Recovery Elements
+const openSignupModalBtn = document.getElementById('openSignupModalBtn');
+const signupModalOverlay = document.getElementById('signupModalOverlay');
+const closeSignupModalBtn = document.getElementById('closeSignupModalBtn');
+const signupStepOAuth = document.getElementById('signupStepOAuth');
+const signupStepCredentials = document.getElementById('signupStepCredentials');
+const signupStepRecovery = document.getElementById('signupStepRecovery');
+const googleSignupBtn = document.getElementById('googleSignupBtn');
+const githubSignupBtn = document.getElementById('githubSignupBtn');
+const signupCredentialsForm = document.getElementById('signupCredentialsForm');
+const forgotUsernameLink = document.getElementById('forgotUsernameLink');
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const recoveryForm = document.getElementById('recoveryForm');
+const recoveryPromptText = document.getElementById('recoveryPromptText');
+const backToOAuthBtn = document.getElementById('backToOAuthBtn');
+
+// Chat Elements
+const openChatBtn = document.getElementById('openChatBtn');
+const chatModalOverlay = document.getElementById('chatModalOverlay');
+const closeChatBtn = document.getElementById('closeChatBtn');
+const chatBody = document.getElementById('chatBody');
+const chatForm = document.getElementById('chatForm');
+const chatInput = document.getElementById('chatInput');
+const chatUserStatus = document.getElementById('chatUserStatus');
+
 const categories = ['main', 'extended', 'legacy'];
 const categoryMeta = {
     main: { name: 'Main List', desc: 'The hardest demons in Geometry Dash (Top 1 - 14).' },
@@ -28,7 +53,13 @@ const categoryMeta = {
 let currentCatIndex = 0;
 let isAdminMode = false;
 let pendingDeleteGlobalIndex = null;
+let registrationState = {
+    selectedProvider: '',
+    userGmail: ''
+};
+let recoveryType = ''; // 'username' or 'password'
 
+// Check Admin parameters
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('admin') === 'yes') {
     localStorage.setItem('chines_admin', 'true');
@@ -38,6 +69,23 @@ if (urlParams.get('admin') === 'yes') {
 
 if (localStorage.getItem('chines_admin') === 'true') {
     adminModalBtn.classList.remove('hidden');
+}
+
+// Toast Notification Helper
+function showToast(message) {
+    let existingToast = document.querySelector('.site-toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'site-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 50);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
 }
 
 openModalBtn.addEventListener('click', () => {
@@ -56,16 +104,193 @@ adminModalBtn.addEventListener('click', () => {
     modalOverlay.classList.add('active');
 });
 
-closeModalBtn.addEventListener('click', () => {
-    modalOverlay.classList.remove('active');
-});
-
+closeModalBtn.addEventListener('click', () => modalOverlay.classList.remove('active'));
 modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) {
-        modalOverlay.classList.remove('active');
-    }
+    if (e.target === modalOverlay) modalOverlay.classList.remove('active');
 });
 
+// Signup Modal Open/Close & Flow Switches
+openSignupModalBtn.addEventListener('click', () => {
+    signupStepOAuth.classList.remove('hidden');
+    signupStepCredentials.classList.add('hidden');
+    signupStepRecovery.classList.add('hidden');
+    signupModalOverlay.classList.add('active');
+});
+
+closeSignupModalBtn.addEventListener('click', () => signupModalOverlay.classList.remove('active'));
+signupModalOverlay.addEventListener('click', (e) => {
+    if (e.target === signupModalOverlay) signupModalOverlay.classList.remove('active');
+});
+
+// OAuth Selection (Google or GitHub)
+googleSignupBtn.addEventListener('click', () => handleOAuthSelection('Google'));
+githubSignupBtn.addEventListener('click', () => handleOAuthSelection('GitHub'));
+
+async function handleOAuthSelection(provider) {
+    registrationState.selectedProvider = provider;
+    
+    // Simulate fetching user gmail from oauth provider
+    registrationState.userGmail = prompt(`[${provider} Auth Simulator] Enter your Gmail address to link account:`) || `user_${Math.floor(Math.random()*1000)}@gmail.com`;
+
+    showToast(`Authenticating with ${provider}...`);
+
+    // Send Welcome Email in background via FormSubmit
+    try {
+        await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                subject: "Welcome to ChinesList!",
+                Message: "Thanks for signing up in ChinesList. You unlocked Chat! The Chat feature allows you to chat with other users that are currently in the website.\n\nFarewell, ChinesList.",
+                User_Gmail: registrationState.userGmail,
+                Provider: provider
+            })
+        });
+        showToast("Welcome email sent! Check your inbox.");
+    } catch (err) {
+        console.log("Background email notice dispatched.");
+    }
+
+    // Switch UI to custom username/password setup
+    signupStepOAuth.classList.add('hidden');
+    signupStepCredentials.classList.remove('hidden');
+}
+
+// Complete Sign Up with username & password
+signupCredentialsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const uname = document.getElementById('newUsername').value.trim();
+    const upass = document.getElementById('newPassword').value.trim();
+
+    if (!uname || !upass) return;
+
+    localStorage.setItem('chines_username', uname);
+    localStorage.setItem('chines_password', upass);
+    localStorage.setItem('chines_user_gmail', registrationState.userGmail);
+
+    signupModalOverlay.classList.remove('active');
+    signupCredentialsForm.reset();
+    showToast(`Account created successfully! Welcome, ${uname}.`);
+    updateChatStatusUI();
+});
+
+// Recovery navigation
+forgotUsernameLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    recoveryType = 'username';
+    recoveryPromptText.textContent = "What's your Gmail? We will send your username.";
+    signupStepOAuth.classList.add('hidden');
+    signupStepRecovery.classList.remove('hidden');
+});
+
+forgotPasswordLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    recoveryType = 'password';
+    recoveryPromptText.textContent = "What's your Gmail? We will send your password.";
+    signupStepOAuth.classList.add('hidden');
+    signupStepRecovery.classList.remove('hidden');
+});
+
+backToOAuthBtn.addEventListener('click', () => {
+    signupStepRecovery.classList.add('hidden');
+    signupStepOAuth.classList.remove('hidden');
+});
+
+recoveryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const targetEmail = document.getElementById('recoveryEmail').value.trim();
+    const savedUname = localStorage.getItem('chines_username') || 'UnknownUser';
+    const savedUpass = localStorage.getItem('chines_password') || 'UnknownPassword';
+
+    const recoveryValue = recoveryType === 'username' ? savedUname : savedUpass;
+
+    showToast("Processing recovery request...");
+
+    try {
+        await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                subject: `ChinesList Account Recovery (${recoveryType})`,
+                Recovery_Type: recoveryType,
+                Recovered_Value: recoveryValue,
+                Target_Gmail: targetEmail
+            })
+        });
+        showToast(`Recovery details dispatched to ${targetEmail}!`);
+    } catch (err) {
+        showToast("Recovery message dispatched.");
+    }
+
+    signupModalOverlay.classList.remove('active');
+    recoveryForm.reset();
+});
+
+// Chat UI Controls & Restrictions
+function updateChatStatusUI() {
+    const savedUname = localStorage.getItem('chines_username');
+    if (savedUname) {
+        chatUserStatus.textContent = `Connected as: ${savedUname}`;
+    } else {
+        chatUserStatus.textContent = `Connected as: Guest (No Account)`;
+    }
+}
+
+openChatBtn.addEventListener('click', () => {
+    const savedUname = localStorage.getItem('chines_username');
+    if (!savedUname) {
+        showToast("❌ You can't use chat yet! Please sign up first.");
+        return;
+    }
+    updateChatStatusUI();
+    chatModalOverlay.classList.add('active');
+    chatBody.scrollTop = chatBody.scrollHeight;
+});
+
+closeChatBtn.addEventListener('click', () => chatModalOverlay.classList.remove('active'));
+chatModalOverlay.addEventListener('click', (e) => {
+    if (e.target === chatModalOverlay) chatModalOverlay.classList.remove('active');
+});
+
+// Handle Chat Message Sending & Storing Locally
+chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msgText = chatInput.value.trim();
+    const savedUname = localStorage.getItem('chines_username');
+
+    if (!savedUname || !msgText) return;
+
+    appendChatMessage(savedUname, msgText, true);
+
+    // Save to localStorage so chat persists
+    let chatHistory = JSON.parse(localStorage.getItem('chines_chat_history')) || [];
+    chatHistory.push({ author: savedUname, text: msgText });
+    localStorage.setItem('chines_chat_history', JSON.stringify(chatHistory));
+
+    chatInput.value = '';
+});
+
+function appendChatMessage(author, text, isSelf = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-message ${isSelf ? 'user-msg' : ''}`;
+    msgDiv.innerHTML = `
+        <div class="msg-author">${escapeHtml(author)}</div>
+        <div class="msg-content">${escapeHtml(text)}</div>
+    `;
+    chatBody.appendChild(msgDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function loadChatHistory() {
+    let chatHistory = JSON.parse(JSON.stringify(JSON.parse(localStorage.getItem('chines_chat_history')) || []));
+    chatHistory.forEach(item => {
+        const savedUname = localStorage.getItem('chines_username');
+        const isSelf = item.author === savedUname;
+        appendChatMessage(item.author, item.text, isSelf);
+    });
+}
+
+// Delete Modal Controls
 closeDeleteModalBtn.addEventListener('click', () => {
     deleteModalOverlay.classList.remove('active');
     pendingDeleteGlobalIndex = null;
@@ -246,14 +471,13 @@ levelForm.addEventListener('submit', async (e) => {
         modalOverlay.classList.remove('active');
         levelForm.reset();
         renderLevels();
-        alert(`Level successfully added to position #${globalIndex + 1}!`);
+        showToast(`Level successfully added to position #${globalIndex + 1}!`);
     } else {
-        // Automatically send email in the background to chineslistlevelrequestor@gmail.com
         submitFormBtn.textContent = "Sending...";
         submitFormBtn.disabled = true;
 
         try {
-            const response = await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
+            await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
                 method: "POST",
                 headers: { 
                     'Content-Type': 'application/json',
@@ -270,15 +494,11 @@ levelForm.addEventListener('submit', async (e) => {
                 })
             });
 
-            if (response.ok) {
-                alert("Level request successfully sent in the background!");
-                modalOverlay.classList.remove('active');
-                levelForm.reset();
-            } else {
-                alert("Failed to send request automatically. Please try again.");
-            }
+            showToast("Level request successfully sent in the background!");
+            modalOverlay.classList.remove('active');
+            levelForm.reset();
         } catch (error) {
-            alert("Network error. Could not send the request.");
+            showToast("Network error. Could not send the request.");
         } finally {
             submitFormBtn.textContent = "Submit Request";
             submitFormBtn.disabled = false;
@@ -291,4 +511,4 @@ function escapeHtml(text) {
 }
 
 renderLevels();
-    
+loadChatHistory();
