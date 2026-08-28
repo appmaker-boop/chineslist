@@ -85,6 +85,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
+    // Update Top Right Button State based on Login
+    function updateAuthDisplay() {
+        const savedUname = localStorage.getItem('chines_username');
+        if (openSignupModalBtn) {
+            if (savedUname) {
+                openSignupModalBtn.innerHTML = `<span class="signup-icon">👋</span><span class="signup-text">Welcome back, ${escapeHtml(savedUname)}</span>`;
+                openSignupModalBtn.style.cursor = "default";
+                openSignupModalBtn.onclick = (e) => e.preventDefault(); // Disable signup modal trigger once logged in
+            } else {
+                openSignupModalBtn.innerHTML = `<span class="signup-icon">👤</span><span class="signup-text">Sign up</span>`;
+                openSignupModalBtn.style.cursor = "pointer";
+                openSignupModalBtn.onclick = null;
+            }
+        }
+    }
+
     if (openModalBtn) {
         openModalBtn.addEventListener('click', () => {
             isAdminMode = false;
@@ -115,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Signup Modal Open/Close & Flow
     if (openSignupModalBtn) {
         openSignupModalBtn.addEventListener('click', () => {
+            if (localStorage.getItem('chines_username')) return; // Do nothing if already logged in
             if (signupStepOAuth) signupStepOAuth.classList.remove('hidden');
             if (signupStepCredentials) signupStepCredentials.classList.add('hidden');
             if (signupStepRecovery) signupStepRecovery.classList.add('hidden');
@@ -173,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (signupModalOverlay) signupModalOverlay.classList.remove('active');
             signupCredentialsForm.reset();
             showToast(`Account created! Welcome, ${uname}.`);
+            updateAuthDisplay();
             updateChatStatusUI();
         });
     }
@@ -256,7 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (closeChatBtn) closeChatBtn.addEventListener('click', () => chatModalOverlay.classList.remove('active'));
+    if (closeChatBtn) {
+        closeChatBtn.addEventListener('click', () => {
+            if (chatModalOverlay) chatModalOverlay.classList.remove('active');
+        });
+    }
+
     if (chatModalOverlay) {
         chatModalOverlay.addEventListener('click', (e) => {
             if (e.target === chatModalOverlay) chatModalOverlay.classList.remove('active');
@@ -420,29 +443,4 @@ document.addEventListener('DOMContentLoaded', () => {
                 let allLevels = [...data.main, ...data.extended, ...data.legacy];
                 
                 if (isNaN(globalIndex) || globalIndex < 0) globalIndex = 0;
-                if (globalIndex > allLevels.length) globalIndex = allLevels.length;
-
-                allLevels.splice(globalIndex, 0, newLevel);
-
-                if (allLevels.length > 100) allLevels = allLevels.slice(0, 100);
-
-                data.main = allLevels.slice(0, 14);
-                data.extended = allLevels.slice(14, 50);
-                data.legacy = allLevels.slice(50, 100);
-
-                localStorage.setItem('chines_levels', JSON.stringify(data));
-                
-                if (modalOverlay) modalOverlay.classList.remove('active');
-                levelForm.reset();
-                renderLevels();
-                showToast(`Level successfully added to position #${globalIndex + 1}!`);
-            } else {
-                if (submitFormBtn) {
-                    submitFormBtn.textContent = "Sending...";
-                    submitFormBtn.disabled = true;
-                }
-
-                try {
-                    await fetch("https://formsubmit.co/ajax/chineslistlevelrequestor@gmail.com", {
-                        method: "POST",
-                        headers: { 'Conte
+                if (globalIndex > allLevels.length) globalIndex = 
