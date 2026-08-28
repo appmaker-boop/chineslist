@@ -6,19 +6,28 @@ const levelForm = document.getElementById('levelForm');
 const modalTitle = document.getElementById('modalTitle');
 const submitFormBtn = document.getElementById('submitFormBtn');
 const levelsContainer = document.getElementById('levelsContainer');
-const catButtons = document.querySelectorAll('.cat-btn');
 const positionGroup = document.getElementById('positionGroup');
 
-let currentCategory = 'main';
+const prevCatBtn = document.getElementById('prevCatBtn');
+const nextCatBtn = document.getElementById('nextCatBtn');
+const categoryTitle = document.getElementById('categoryTitle');
+const categoryDescription = document.getElementById('categoryDescription');
+
+const categories = ['main', 'extended', 'legacy'];
+const categoryMeta = {
+    main: { name: 'Main List', desc: 'The hardest demons in Geometry Dash (Top 1 - 14).' },
+    extended: { name: 'Extended List', desc: 'Extremely difficult demons forming the extended boundary (Top 15 - 50).' },
+    legacy: { name: 'Legacy List', desc: 'Demon levels that were previously on the main/extended list (Top 51 - 100).' }
+};
+
+let currentCatIndex = 0;
 let isAdminMode = false;
 
-// Check URL for admin=yes and save it permanently on this browser
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('admin') === 'yes') {
     localStorage.setItem('chines_admin', 'true');
 }
 
-// If saved, show the rainbow admin button
 if (localStorage.getItem('chines_admin') === 'true') {
     adminModalBtn.classList.remove('hidden');
 }
@@ -49,14 +58,29 @@ modalOverlay.addEventListener('click', (e) => {
     }
 });
 
-catButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        catButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentCategory = btn.getAttribute('data-category');
+// Carousel Navigation Arrows with Smooth Fade
+function updateCarousel(direction) {
+    levelsContainer.style.opacity = '0';
+    categoryTitle.style.opacity = '0';
+    categoryDescription.style.opacity = '0';
+
+    setTimeout(() => {
+        currentCatIndex = (currentCatIndex + direction + categories.length) % categories.length;
+        const currentCatKey = categories[currentCatIndex];
+
+        categoryTitle.textContent = categoryMeta[currentCatKey].name;
+        categoryDescription.textContent = categoryMeta[currentCatKey].desc;
+
         renderLevels();
-    });
-});
+
+        levelsContainer.style.opacity = '1';
+        categoryTitle.style.opacity = '1';
+        categoryDescription.style.opacity = '1';
+    }, 200);
+}
+
+prevCatBtn.addEventListener('click', () => updateCarousel(-1));
+nextCatBtn.addEventListener('click', () => updateCarousel(1));
 
 document.querySelectorAll('.apply-field-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -87,7 +111,8 @@ function getStoredLevels() {
 
 function renderLevels() {
     const data = getStoredLevels();
-    const categoryLevels = data[currentCategory] || [];
+    const currentCatKey = categories[currentCatIndex];
+    const categoryLevels = data[currentCatKey] || [];
 
     levelsContainer.innerHTML = '';
 
@@ -96,7 +121,13 @@ function renderLevels() {
         return;
     }
 
+    // Calculate baseline rank offset based on category tier
+    let rankOffset = 0;
+    if (currentCatKey === 'extended') rankOffset = 14;
+    if (currentCatKey === 'legacy') rankOffset = 50;
+
     categoryLevels.forEach((lvl, index) => {
+        const actualRank = rankOffset + index + 1;
         const thumbUrl = getYouTubeThumbnail(lvl.youtube);
         const card = document.createElement('div');
         card.className = 'level-card';
@@ -104,7 +135,7 @@ function renderLevels() {
             <div class="level-left">
                 <img src="${thumbUrl}" alt="Thumbnail" class="level-thumb">
                 <div class="level-info">
-                    <h3>#${index + 1} - ${escapeHtml(lvl.name)}</h3>
+                    <h3>#${actualRank} - ${escapeHtml(lvl.name)}</h3>
                     <p>Creator: <strong>${escapeHtml(lvl.creator)}</strong> | Verifier: <strong>${escapeHtml(lvl.verifier)}</strong> | Duration: ${escapeHtml(lvl.duration)}</p>
                 </div>
             </div>
@@ -128,23 +159,35 @@ levelForm.addEventListener('submit', (e) => {
     if (isAdminMode) {
         const data = getStoredLevels();
         let targetPos = parseInt(document.getElementById('levelPosition').value);
+        let currentCatKey = categories[currentCatIndex];
 
-        if (!targetPos || targetPos < 1) {
-            targetPos = data[currentCategory].length + 1;
-        }
+        let globalIndex = targetPos ? targetPos - 1 : 0;
         
-        let index = targetPos - 1;
-        if (index > data[currentCategory].length) {
-            index = data[currentCategory].length;
+        // Flatten all categories to handle continuous shifting across Main -> Extended -> Legacy (up to 100)
+        let allLevels = [...data.main, ...data.extended, ...data.legacy];
+        
+        if (isNaN(globalIndex) || globalIndex < 0) globalIndex = 0;
+        if (globalIndex > allLevels.length) globalIndex = allLevels.length;
+
+        // Insert at target global position
+        allLevels.splice(globalIndex, 0, newLevel);
+
+        // Cap legacy at max 100 items total
+        if (allLevels.length > 100) {
+            allLevels = allLevels.slice(0, 100);
         }
 
-        data[currentCategory].splice(index, 0, newLevel);
+        // Redistribute strictly into tiers: Main (1-14), Extended (15-50), Legacy (51-100)
+        data.main = allLevels.slice(0, 14);
+        data.extended = allLevels.slice(14, 50);
+        data.legacy = allLevels.slice(50, 100);
+
         localStorage.setItem('chines_levels', JSON.stringify(data));
         
         modalOverlay.classList.remove('active');
         levelForm.reset();
         renderLevels();
-        alert(`Level successfully added to Top ${targetPos}!`);
+        alert(`Level successfully added to position #${globalIndex + 1}! Tiers updated.`);
     } else {
         const email = "zubykyurko@gmail.com";
         const subject = encodeURIComponent("New level request!");
@@ -154,7 +197,7 @@ levelForm.addEventListener('submit', (e) => {
             `Creator: ${newLevel.creator}\n` +
             `Verifier: ${newLevel.verifier}\n` +
             `YouTube Link: ${newLevel.youtube}\n` +
-            `Category: ${currentCategory}`
+            `Category: ${categories[currentCatIndex]}`
         );
 
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
