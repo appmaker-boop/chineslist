@@ -22,11 +22,17 @@
     </header>
 
     <main class="main-container">
-        <nav class="category-nav">
-            <button class="cat-btn active" data-category="main">Main List</button>
-            <button class="cat-btn" data-category="extended">Extended List</button>
-            <button class="cat-btn" data-category="legacy">Legacy List</button>
-        </nav>
+        <!-- Category Carousel Navigation -->
+        <section class="category-carousel-section">
+            <div class="carousel-nav-container">
+                <button class="carousel-arrow" id="prevCatBtn" title="Previous List">&#10094;</button>
+                <div class="carousel-label-wrapper">
+                    <h2 id="categoryTitle">Main List</h2>
+                </div>
+                <button class="carousel-arrow" id="nextCatBtn" title="Next List">&#10095;</button>
+            </div>
+            <p id="categoryDescription" class="carousel-description">The hardest demons in Geometry Dash (Top 1 - 14).</p>
+        </section>
 
         <section class="levels-section">
             <div id="levelsContainer" class="levels-grid"></div>
