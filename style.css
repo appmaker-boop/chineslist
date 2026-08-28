@@ -61,7 +61,42 @@ body {
 
 .header-actions {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Signup Top Right Button */
+.signup-top-btn {
+    background: var(--yellow-accent);
+    color: var(--dark-red);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto !important;
+    padding: 0 14px;
+    height: 42px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    border: none;
+    transition: background 0.2s ease;
+}
+
+.signup-top-btn:hover {
+    background: var(--bright-yellow);
+}
+
+.signup-icon {
+    font-size: 1.1rem;
+}
+
+/* Stacked Action Buttons Column */
+.stacked-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .icon-btn {
@@ -73,6 +108,20 @@ body {
     font-size: 1.2rem;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-toggle-btn {
+    background: #e0e0e0;
+    color: #000000;
+    border: 1px solid #b5b5b5;
+    font-size: 1.1rem;
+}
+
+.chat-toggle-btn:hover {
+    background: #ffffff;
 }
 
 .rainbow-btn {
@@ -91,7 +140,7 @@ body {
     display: none !important;
 }
 
-/* Unified Main Container */
+/* Main Container & Carousel */
 .main-container {
     position: relative;
     z-index: 5;
@@ -153,7 +202,7 @@ body {
     max-width: 550px;
 }
 
-/* Levels Section & Unified Cards */
+/* Levels Section & Cards */
 .levels-section {
     background: rgba(0, 0, 0, 0.4);
     border-radius: 15px;
@@ -225,7 +274,6 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Action Group for Links & Admin Delete */
 .level-actions {
     display: flex;
     align-items: center;
@@ -261,7 +309,7 @@ body {
     color: white;
 }
 
-/* Unified Modals */
+/* Modals Overlay */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -294,6 +342,200 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
+.signup-modal-content {
+    text-align: center;
+}
+
+.oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0 15px 0;
+}
+
+.oauth-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.oauth-btn:active {
+    transform: scale(0.98);
+}
+
+.google-btn {
+    background: #ffffff;
+    color: #333333;
+}
+
+.github-btn {
+    background: #f0f0f0;
+    color: #24292e;
+    border: 1px solid #d1d5db;
+}
+
+.oauth-icon {
+    font-size: 1.2rem;
+}
+
+.recovery-links {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+.recovery-links a {
+    color: var(--yellow-accent);
+    text-decoration: none;
+}
+
+.recovery-links a:hover {
+    text-decoration: underline;
+}
+
+/* WhatsApp-style Chat UI */
+.chat-window {
+    background: #111b21;
+    border: 2px solid var(--yellow-accent);
+    width: 92%;
+    max-width: 480px;
+    height: 80vh;
+    max-height: 600px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+}
+
+.chat-header {
+    background: #202c33;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-header-info h3 {
+    color: var(--yellow-accent);
+    font-size: 1rem;
+}
+
+.chat-header-info span {
+    font-size: 0.72rem;
+    color: #8696a0;
+}
+
+.chat-body {
+    flex: 1;
+    background: #0b141a;
+    background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-message {
+    background: #202c33;
+    color: #e9edef;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    font-size: 0.85rem;
+    word-break: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.chat-message.system-msg {
+    background: #182229;
+    color: #8696a0;
+    align-self: center;
+    text-align: center;
+    font-size: 0.75rem;
+    border-radius: 6px;
+}
+
+.chat-message.user-msg {
+    background: #005c4b;
+    align-self: flex-end;
+}
+
+.chat-message .msg-author {
+    font-size: 0.7rem;
+    color: var(--yellow-accent);
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.chat-footer {
+    background: #202c33;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-footer input {
+    flex: 1;
+    background: #2a3942;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.chat-send-btn {
+    background: #00a884;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+/* Toast / Notification Popup */
+.site-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #202c33;
+    color: var(--yellow-accent);
+    border: 1px solid var(--yellow-accent);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    z-index: 1000;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+}
+
+.site-toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Common Modal Elements */
 .delete-modal-content {
     text-align: center;
 }
@@ -325,18 +567,10 @@ body {
     color: white;
 }
 
-.confirm-delete:hover {
-    background: #cc0000;
-}
-
 .cancel-delete {
     background: rgba(255,255,255,0.15);
     color: white;
     border: 1px solid var(--yellow-accent);
-}
-
-.cancel-delete:hover {
-    background: rgba(255,255,255,0.25);
 }
 
 .modal-header {
@@ -412,4 +646,4 @@ body {
     font-weight: bold;
     cursor: pointer;
     margin-top: 5px;
-}
+        }
