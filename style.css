@@ -3,6 +3,10 @@
     --dark-red: #4a0000;
     --yellow-accent: #FFD700;
     --bright-yellow: #FFEE55;
+    /* Responsive layout tokens */
+    --container-max: 900px;
+    --card-padding: 12px 18px;
+    --font-scale: 1rem;
 }
 
 * {
@@ -33,6 +37,9 @@ body {
     opacity: 0.15;
 }
 
+/* ==========================================
+   HEADER RESPONSIVE STYLING
+   ========================================== */
 .header {
     position: relative;
     z-index: 10;
@@ -59,7 +66,7 @@ body {
 
 .header-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .icon-btn {
@@ -71,6 +78,11 @@ body {
     font-size: 1.3rem;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+    transform: scale(1.05);
 }
 
 .rainbow-btn {
@@ -89,15 +101,18 @@ body {
     display: none !important;
 }
 
+/* ==========================================
+   MAIN CONTAINER & CAROUSEL LAYOUT
+   ========================================== */
 .main-container {
     position: relative;
     z-index: 5;
-    max-width: 900px;
+    max-width: var(--container-max);
     margin: 30px auto;
-    padding: 0 15px;
+    padding: 0 20px;
+    transition: max-width 0.3s ease;
 }
 
-/* Category Carousel Styles */
 .category-carousel-section {
     display: flex;
     flex-direction: column;
@@ -113,7 +128,7 @@ body {
     gap: 20px;
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid var(--yellow-accent);
-    padding: 10px 25px;
+    padding: 12px 30px;
     border-radius: 35px;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -123,8 +138,8 @@ body {
     background: var(--dark-red);
     color: var(--yellow-accent);
     border: 2px solid var(--yellow-accent);
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     font-size: 1rem;
     cursor: pointer;
@@ -141,7 +156,7 @@ body {
 }
 
 .carousel-label-wrapper {
-    min-width: 180px;
+    min-width: 200px;
 }
 
 #categoryTitle {
@@ -155,14 +170,16 @@ body {
 
 .carousel-description {
     margin-top: 10px;
-    font-size: 0.85krem;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #ffcccc;
     font-weight: 600;
-    max-width: 600px;
+    max-width: 650px;
     transition: opacity 0.3s ease;
 }
 
+/* ==========================================
+   LEVEL CARDS & GRID
+   ========================================== */
 .levels-section {
     background: rgba(0, 0, 0, 0.4);
     border-radius: 15px;
@@ -193,53 +210,79 @@ body {
     align-items: center;
     background: linear-gradient(135deg, rgba(139,0,0,0.8), rgba(74,0,0,0.9));
     border: 2px solid var(--yellow-accent);
-    padding: 12px 18px;
-    border-radius: 10px;
+    padding: var(--card-padding);
+    border-radius: 12px;
     gap: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.level-card:hover {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
 }
 
 .level-left {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex: 1;
+    min-width: 0;
 }
 
 .level-thumb {
-    width: 90px;
-    height: 50px;
+    width: 95px;
+    height: 54px;
     object-fit: cover;
     border-radius: 6px;
     border: 1px solid var(--yellow-accent);
+    flex-shrink: 0;
+}
+
+.level-info {
+    min-width: 0;
 }
 
 .level-info h3 {
     color: var(--yellow-accent);
     font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .level-info p {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: #f0f0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .yt-link {
     background: #ff0000;
     color: white;
-    padding: 6px 12px;
-    border-radius: 5px;
+    padding: 8px 14px;
+    border-radius: 6px;
     text-decoration: none;
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     white-space: nowrap;
+    transition: background 0.2s ease;
 }
 
+.yt-link:hover {
+    background: #cc0000;
+}
+
+/* ==========================================
+   MODAL DIALOG
+   ========================================== */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     z-index: 100;
     display: flex;
@@ -259,7 +302,7 @@ body {
     background: var(--dark-red);
     border: 3px solid var(--yellow-accent);
     width: 90%;
-    max-width: 450px;
+    max-width: 480px;
     padding: 25px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
@@ -269,12 +312,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .modal-header h2 {
     color: var(--yellow-accent);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
 }
 
 .close-btn {
@@ -288,13 +331,13 @@ body {
 .level-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
     position: relative;
 }
 
@@ -305,37 +348,166 @@ body {
 }
 
 .input-group input {
-    padding: 10px;
+    padding: 11px 12px;
     border-radius: 8px;
     border: 1px solid var(--yellow-accent);
     background: rgba(0,0,0,0.3);
     color: white;
     font-size: 0.95rem;
-    padding-right: 65px;
+    padding-right: 70px;
 }
 
 .apply-field-btn {
     position: absolute;
-    right: 4px;
-    bottom: 4px;
+    right: 5px;
+    bottom: 5px;
     background: var(--yellow-accent);
     border: none;
     color: var(--dark-red);
-    padding: 6px 8px;
+    padding: 6px 10px;
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
 }
 
 .submit-request-btn {
     background: var(--yellow-accent);
     color: var(--dark-red);
     border: none;
-    padding: 12px;
+    padding: 13px;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: bold;
     cursor: pointer;
     margin-top: 5px;
+    transition: background 0.2s ease;
+}
+
+.submit-request-btn:hover {
+    background: var(--bright-yellow);
+}
+
+
+/* ==========================================================
+   DEVICE-SPECIFIC MEDIA QUERIES (Phone, Tablet, PC)
+   ========================================================== */
+
+/* 1. PHONE SCREENS (Max width 600px) - Optimized for touch, vertical stacking, compact spacing */
+@media screen and (max-width: 600px) {
+    .header {
+        padding: 15px 20px;
+    }
+
+    .logo-area h1 {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.7rem;
+    }
+
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+    }
+
+    .carousel-nav-container {
+        padding: 8px 15px;
+        gap: 12px;
+        width: 100%;
+    }
+
+    #categoryTitle {
+        font-size: 1.05rem;
+    }
+
+    .carousel-description {
+        font-size: 0.78rem;
+        padding: 0 10px;
+    }
+
+    .levels-section {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .level-card {
+        padding: 10px;
+        gap: 10px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .level-left {
+        gap: 10px;
+    }
+
+    .level-thumb {
+        width: 75px;
+        height: 42px;
+    }
+
+    .level-info h3 {
+        font-size: 0.95rem;
+    }
+
+    .level-info p {
+        font-size: 0.75rem;
+    }
+
+    .yt-link {
+        text-align: center;
+        padding: 8px;
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 18px;
+    }
+}
+
+/* 2. TABLET SCREENS (Min width 601px and Max width 1024px) - Balanced mid-size spacing */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+    :root {
+        --container-max: 720px;
+    }
+
+    .header {
+        padding: 18px 30px;
+    }
+
+    .logo-area h1 {
+        font-size: 1.8rem;
+    }
+
+    .levels-section {
+        padding: 20px;
+    }
+}
+
+/* 3. PC / WIDE DESKTOP SCREENS (Min width 1025px) - Expanded layout, generous widescreen containers */
+@media screen and (min-width: 1025px) {
+    :root {
+        --container-max: 960px;
+    }
+
+    .main-container {
+        margin-top: 40px;
+    }
+
+    .header {
+        padding: 25px 60px;
+    }
+
+    .levels-section {
+        padding: 30px;
+    }
+
+    .level-card:hover {
+        transform: translateY(-2px);
+    }
 }
